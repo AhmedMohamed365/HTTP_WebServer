@@ -25,7 +25,6 @@ namespace HTTPServer
         RequestMethod method;
         public string relativeURI;
         Dictionary<string, string> headerLines;
-
         public Dictionary<string, string> HeaderLines
         {
             get { return headerLines; }
@@ -45,37 +44,110 @@ namespace HTTPServer
         /// <returns>True if parsing succeeds, false otherwise.</returns>
         public bool ParseRequest()
         {
-            throw new NotImplementedException();
 
             //TODO: parse the receivedRequest using the \r\n delimeter   
-
             // check that there is atleast 3 lines: Request line, Host Header, Blank line (usually 4 lines with the last empty line for empty content)
-
             // Parse Request line
-
-            // Validate blank line exists
-
+            // Validate blank line exist
             // Load header lines into HeaderLines dictionary
-        }
+            // parse request line 
+            requestLines = requestString.Split('\n', '\r');
+            if (requestLines.Length >= 3 && ValidateBlankLine())
+            {
+                // request line is more than 3 
+                if (!ParseRequestLine())
+                    return false;
+                if (!LoadHeaderLines())
+                    return false;
+                return true;
+            }
+            else
+                return false;
 
+        }
         private bool ParseRequestLine()
         {
-            throw new NotImplementedException();
+            string[] requestLine = requestLines[0].Split();
+
+            if (requestLine.Length >= 2 && requestLine.Length < 4)
+            {
+                // first line contains 
+                // method type
+                if (requestLine[0].Equals(RequestMethod.HEAD))
+                {
+                    method = RequestMethod.HEAD;
+                }
+                if (requestLine[0].Equals(RequestMethod.POST))
+                {
+                    method = RequestMethod.POST;
+                }
+                if (requestLine[0].Equals(RequestMethod.GET))
+                {
+                    method = RequestMethod.GET;
+                }
+                // URI
+                relativeURI = requestLine[1];
+                // http virsion
+                if (requestLine.Length < 3)
+                    httpVersion = HTTPVersion.HTTP09;
+                else if (requestLine[2].Equals("HTTP/0.9"))
+                    httpVersion = HTTPVersion.HTTP09;
+                else if (requestLine[2].Equals("HTTP/1.0"))
+                    httpVersion = HTTPVersion.HTTP10;
+                else if (requestLine[2].Equals("HTTP/1.1"))
+                    httpVersion = HTTPVersion.HTTP11;
+                return true;
+            }
+            else
+                return false;
         }
 
         private bool ValidateIsURI(string uri)
         {
             return Uri.IsWellFormedUriString(uri, UriKind.RelativeOrAbsolute);
         }
-
         private bool LoadHeaderLines()
         {
-            throw new NotImplementedException();
+            int i = 0;
+            foreach (string iterator in requestLines)
+            {
+                string[] headerLine = iterator.Split(':');
+                if (headerLine.Length == 2)
+                {
+                    // ignore 
+                    if (i == 0)
+                    {
+                        i++;
+                        continue;
+                    }
+                    if (iterator.Equals("\n"))
+                        break;
+                    else
+                    {
+                        headerLines.Add(headerLine[0], headerLine[1]);
+                    }
+
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private bool ValidateBlankLine()
         {
-            throw new NotImplementedException();
+            bool blankLineExist = false;
+            foreach (string iterator in requestLines)
+            {
+                if (iterator.Equals('\n'))
+                    blankLineExist = true;
+            }
+            if (blankLineExist)
+                return true;
+            else
+                return false;
         }
 
     }
