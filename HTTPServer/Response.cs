@@ -47,7 +47,10 @@ namespace HTTPServer
                 headerLines[3] = "\r\nredirection" + redirectoinPath;
             }
             // TODO: Create the request string
-
+            foreach(string header in headerLines)
+            {
+                responseString += header;
+            }
 
 
 
