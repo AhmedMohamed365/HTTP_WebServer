@@ -18,10 +18,10 @@ namespace HTTPServer
             //TODO: call this.LoadRedirectionRules passing redirectionMatrixPath to it
             this.LoadRedirectionRules(redirectionMatrixPath);
             //TODO: initialize this.serverSocket
-            IPEndPoint ipEnd = new IPEndPoint(IPAddress.Any, portNumber);
+            IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portNumber);
             this.serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             this.serverSocket.Bind(ipEnd);
-            //fawzi moza
+            
            
         }
 
@@ -81,24 +81,54 @@ namespace HTTPServer
         {
             throw new NotImplementedException();
             string content ="";
+            bool isBadRequest = false;
+            string physicalPath = Configuration.RootPath;
+            string redirectedUri = "";
+            int statusCode = (int)StatusCode.OK;
+            StreamReader reader;
             try
             {
                 //TODO: check for bad request 
-
+                isBadRequest= request.ParseRequest();
+                if(isBadRequest)
+                    statusCode = (int)StatusCode.BadRequest;
                 //TODO: map the relativeURI in request to get the physical path of the resource.
-                
+
+                LoadRedirectionRules("redirectionRules.txt");
+
                 //TODO: check for redirect
+                redirectedUri = GetRedirectionPagePathIFExist(request.relativeURI);
+
+                if(redirectedUri == "")
+                {
+                    physicalPath += request.relativeURI;
+                }
+                else
+                {
+                    physicalPath += redirectedUri;
+                }
+                //
+
 
                 //TODO: check file exists
-
+               reader = new StreamReader(physicalPath);
                 //TODO: read the physical file
-
+                content = reader.ReadToEnd();
                 // Create OK response
+                Response response = new Response(StatusCode.OK, "text/html", content, redirectedUri);
+            }
+
+            catch(FileNotFoundException ex)
+            {
+                //statusCode = (int)
+
+                Response response = new Response(StatusCode.NotFound, "text/html", "NotFound", redirectedUri);
             }
             catch (Exception ex)
             {
                 // TODO: log exception using Logger class
 
+               
                 Logger.LogException(ex);
                 // TODO: in case of exception, return Internal Server Error. 
                 string redirectionPath = GetRedirectionPagePathIFExist(request.relativeURI);
