@@ -1,8 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
+
 
 namespace HTTPServer
 {
@@ -30,21 +33,34 @@ namespace HTTPServer
         List<string> headerLines = new List<string>();
         public Response(StatusCode code, string contentType, string content, string redirectoinPath)
         {
-            throw new NotImplementedException();
+
             // TODO: Add headlines (Content-Type, Content-Length,Date, [location if there is redirection])
-
-
+            
+            this.code = code;
+            GetStatusLine(code);
+            headerLines[0] = "\r\n Content-Type: " + contentType;
+            headerLines[1] = "\r\n Content-Length: " + content.Length.ToString();
+            headerLines[2] = "\r\n Date : " + DateTime.Now.ToString();
+            if(redirectoinPath!=null)
+            {
+                headerLines[3] = "\r\nredirection" + redirectoinPath;
+            }
             // TODO: Create the request string
+
+
+
 
         }
 
         private string GetStatusLine(StatusCode code)
         {
             // TODO: Create the response status line and return it
-            string statusLine = string.Empty;
-
-
+            string statusLine = string.Format("HTTP/1.1 {0}{1}\r\n", "", ((int)code).ToString(), code.ToString());
+            
+                        
+         
             return statusLine;
         }
     }
 }
+
