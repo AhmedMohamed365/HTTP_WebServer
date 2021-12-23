@@ -38,9 +38,9 @@ namespace HTTPServer
             
             this.code = code;
             GetStatusLine(code);
-            headerLines[0] = "\r\n Content-Type: " + contentType;
-            headerLines[1] = "\r\n Content-Length: " + content.Length.ToString();
-            headerLines[2] = "\r\n Date : " + DateTime.Now.ToString();
+            headerLines[0] = " Content-Type: \r\n" + contentType;
+            headerLines[1] = "Content-Length:\r\n  " + content.Length.ToString();
+            headerLines[2] = "Date : \r\n " + DateTime.Now.ToString();
             if(redirectoinPath!=null)
             {
                 headerLines[3] = "\r\nredirection" + redirectoinPath;
