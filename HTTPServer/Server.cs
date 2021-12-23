@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,19 +16,25 @@ namespace HTTPServer
         public Server(int portNumber, string redirectionMatrixPath)
         {
             //TODO: call this.LoadRedirectionRules passing redirectionMatrixPath to it
+            this.LoadRedirectionRules(redirectionMatrixPath);
             //TODO: initialize this.serverSocket
+            IPEndPoint ipEnd = new IPEndPoint(IPAddress.Any, portNumber);
+            this.serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            this.serverSocket.Bind(ipEnd);
         }
 
         public void StartServer()
         {
             // TODO: Listen to connections, with large backlog.
-
+            this.serverSocket.Listen(100);
             // TODO: Accept connections in while loop and start a thread for each connection on function "Handle Connection"
             while (true)
             {
                 //TODO: accept connections and start thread for each accepted connection.
-
-
+                Socket clientSocket = this.serverSocket.Accept();
+                Thread thread = new Thread(new ParameterizedThreadStart(HandleConnection));
+                thread.Start(clientSocket);
+ 
             }
         }
 
