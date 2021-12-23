@@ -71,7 +71,7 @@ namespace HTTPServer
                 //TODO: check for bad request 
 
                 //TODO: map the relativeURI in request to get the physical path of the resource.
-
+                Console.WriteLine("Hello");
                 //TODO: check for redirect
 
                 //TODO: check file exists
