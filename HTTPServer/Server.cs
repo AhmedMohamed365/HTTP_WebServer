@@ -113,14 +113,42 @@ namespace HTTPServer
 
         private void LoadRedirectionRules(string filePath)
         {
+            StreamReader reader = new StreamReader(filePath);
             try
             {
+                Configuration.RedirectionRules = new Dictionary<string, string>();
                 // TODO: using the filepath paramter read the redirection rules from file 
+
+                 
+                string [] line ;
+                string oldAddress, newAddress;
+
+                char[] seprators = { ',' };
+                while (reader.EndOfStream)
+                {
+                    line =   reader.ReadLine().Trim().Split(seprators);
+
+                    oldAddress = line[0];
+                    newAddress = line[2];
+
+                    Configuration.RedirectionRules.Add(oldAddress, newAddress);
+
+                }
+
+                reader.Close();
                 // then fill Configuration.RedirectionRules dictionary 
+
+                //I Think Done ? 
+
+
             }
             catch (Exception ex)
             {
+                reader.Close();
                 // TODO: log exception using Logger class
+
+                Logger.LogException(ex);
+
                 Environment.Exit(1);
             }
         }
