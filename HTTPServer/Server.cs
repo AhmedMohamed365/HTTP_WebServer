@@ -40,11 +40,12 @@ namespace HTTPServer
             }
         }
 
-        public void HandleConnection(object obj)
+         public void HandleConnection(object obj)
         {
             // TODO: Create client socket 
             Socket clientSocket = (Socket)obj;
             // set client socket ReceiveTimeout = 0 to indicate an infinite time-out period
+ 
             clientSocket.ReceiveTimeout = 0;
             // TODO: receive requests in while true until remote client closes the socket.
             while (true)
@@ -52,24 +53,29 @@ namespace HTTPServer
                 try
                 {
                     // TODO: Receive request
-
+                    byte[] dataReceived = new byte[1024 * 1024];
+                    int len = clientSocket.Receive(dataReceived);
                     // TODO: break the while loop if receivedLen==0
-
+                    if (len == 0)
+                        break;
                     // TODO: Create a Request object using received request string
-
+                    Request request = new Request(dataReceived.ToString());
                     // TODO: Call HandleRequest Method that returns the response
-
+                    Response response= HandleRequest(request);
                     // TODO: Send Response back to client
-
+                    this.serverSocket.Send(Encoding.ASCII.GetBytes(response.ToString()));
+ 
                 }
                 catch (Exception ex)
                 {
                     // TODO: log exception using Logger class
+                    Logger.LogException(ex);
                 }
             }
-
+            clientSocket.Close();
             // TODO: close client socket
         }
+ 
 
         Response HandleRequest(Request request)
         {
