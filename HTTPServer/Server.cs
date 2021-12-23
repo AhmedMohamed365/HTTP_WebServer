@@ -43,8 +43,9 @@ namespace HTTPServer
         public void HandleConnection(object obj)
         {
             // TODO: Create client socket 
+            Socket clientSocket = (Socket)obj;
             // set client socket ReceiveTimeout = 0 to indicate an infinite time-out period
-            
+            clientSocket.ReceiveTimeout = 0;
             // TODO: receive requests in while true until remote client closes the socket.
             while (true)
             {
@@ -73,13 +74,13 @@ namespace HTTPServer
         Response HandleRequest(Request request)
         {
             throw new NotImplementedException();
-            string content;
+            string content ="";
             try
             {
                 //TODO: check for bad request 
 
                 //TODO: map the relativeURI in request to get the physical path of the resource.
-                Console.WriteLine("Hello");
+                
                 //TODO: check for redirect
 
                 //TODO: check file exists
@@ -91,36 +92,93 @@ namespace HTTPServer
             catch (Exception ex)
             {
                 // TODO: log exception using Logger class
+
+                Logger.LogException(ex);
                 // TODO: in case of exception, return Internal Server Error. 
+                string redirectionPath = GetRedirectionPagePathIFExist(request.relativeURI);
+
+                //Third param need to be revised ??
+             return new Response(StatusCode.InternalServerError, "text/html", "Internal Server Error", redirectionPath);
             }
         }
 
         private string GetRedirectionPagePathIFExist(string relativePath)
         {
             // using Configuration.RedirectionRules return the redirected page path if exists else returns empty
-            
+
+           string redirectedPage =  Configuration.RedirectionRules[relativePath];
+
+            //Append the root path to the new path of the redirected page
+
+            if (redirectedPage != null)
+
+                return Configuration.RootPath + redirectedPage;
+
             return string.Empty;
         }
 
         private string LoadDefaultPage(string defaultPageName)
         {
             string filePath = Path.Combine(Configuration.RootPath, defaultPageName);
+            string fileContent = "";
             // TODO: check if filepath not exist log exception using Logger class and return empty string
-            
+            StreamReader reader;
+            try
+            {
+                 reader = new StreamReader(filePath);
+            }
+            catch(FileNotFoundException ex)
+            {
+                Logger.LogException(ex);
+
+                return string.Empty;
+            }
             // else read file and return its content
-            return string.Empty;
+           fileContent =  reader.ReadToEnd();
+            reader.Close();
+            return fileContent;
         }
 
         private void LoadRedirectionRules(string filePath)
         {
+            StreamReader reader = new StreamReader(filePath);
             try
             {
+                Configuration.RedirectionRules = new Dictionary<string, string>();
                 // TODO: using the filepath paramter read the redirection rules from file 
-                // then fill Configuration.RedirectionRules dictionary 
+
+                 
+                string [] line ;
+                string oldAddress, newAddress;
+
+                char[] seprators = { ',' };
+                while (reader.EndOfStream)
+                {
+                    line =   reader.ReadLine().Trim().Split(seprators);
+
+                    oldAddress = line[0];
+                    newAddress = line[2];
+
+                    // then fill Configuration.RedirectionRules dictionary 
+
+                    Configuration.RedirectionRules.Add(oldAddress, newAddress);
+
+                }
+
+                reader.Close();
+               
+
+                //I Think Done ? 
+
+
             }
             catch (Exception ex)
             {
+                reader.Close();
                 // TODO: log exception using Logger class
+
+                Logger.LogException(ex);
+
                 Environment.Exit(1);
             }
         }

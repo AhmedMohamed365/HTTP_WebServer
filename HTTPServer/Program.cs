@@ -25,7 +25,7 @@ namespace HTTPServer
             // each line in the file specify a redirection rule
             // example: "aboutus.html,aboutus2.html"
             // means that when making request to aboustus.html,, it redirects me to aboutus2
-             StreamWriter str = new StreamWriter("redirectionRules.txt");
+             StreamWriter str = new StreamWriter("redirectionRules.txt",true);
             str.WriteLine("aboutus.html,aboutus2.html"); //redirect to another website.
            str.Close();
         }
