@@ -22,6 +22,7 @@ namespace HTTPServer
     class Response
     {
         string responseString;
+        static  string CRLF = "\r\n";
         public string ResponseString
         {
             get
