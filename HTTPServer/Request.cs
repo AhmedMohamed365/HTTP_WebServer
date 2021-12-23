@@ -111,8 +111,8 @@ namespace HTTPServer
             int i = 0;
             foreach (string iterator in requestLines)
             {
-                string[] headerLine = iterator.Split(':');
-                if (headerLine.Length == 2)
+                string[] headerLine = iterator.Split(':',' ');
+                if (headerLine.Length == 2) 
                 {
                     // ignore 
                     if (i == 0)

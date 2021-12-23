@@ -44,14 +44,14 @@ namespace HTTPServer
             headerLines[2] = "Date : \r\n " + DateTime.Now.ToString();
             if(redirectoinPath!=null)
             {
-                headerLines[3] = "\r\nredirection" + redirectoinPath;
+                headerLines[3] = "\r\n]redirection" + redirectoinPath;
             }
-            // TODO: Create the request string
+            // TODO: Create the request strindasdg
             foreach(string header in headerLines)
             {
                 responseString += header;
-            }
-
+            }sdasd
+                dsd
 
 
         }
