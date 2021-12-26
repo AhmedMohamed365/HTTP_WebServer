@@ -171,7 +171,7 @@ namespace HTTPServer
             // using Configuration.RedirectionRules return the redirected page path if exists else returns empty
             string redirectedPage;
 
-           
+          relativePath =   relativePath.Replace("/","");
                 if (Configuration.RedirectionRules.ContainsKey(relativePath))
                 {
 
