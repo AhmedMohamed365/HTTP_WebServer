@@ -13,6 +13,7 @@ namespace HTTPServer
     {
         Socket serverSocket;
 
+
         public Server(int portNumber, string redirectionMatrixPath)
         {
             //TODO: call this.LoadRedirectionRules passing redirectionMatrixPath to it
@@ -70,12 +71,9 @@ namespace HTTPServer
                     // TODO: Call HandleRequest Method that returns the response
                     Response response= HandleRequest(request);
                     // TODO: Send Response back to client
-
-                    while(!clientSocket.Connected)
-                    {
-
-                    }
-                    this.serverSocket.Send(Encoding.ASCII.GetBytes(response.ResponseString) );
+                    Console.WriteLine(response.ResponseString);
+                   
+                    serverSocket.Send(Encoding.ASCII.GetBytes(response.ResponseString) );
  
                 }
                 catch (Exception ex)
@@ -84,6 +82,8 @@ namespace HTTPServer
                     Logger.LogException(ex);
                 }
             }
+
+            clientSocket.Shutdown(SocketShutdown.Both);
             clientSocket.Close();
             // TODO: close client socket
         }

@@ -41,11 +41,11 @@ namespace HTTPServer
             headerLines.Add(GetStatusLine(code)+CRLF);
             headerLines.Add("Content-Type: "+ contentType+ CRLF  );
             headerLines.Add("Content-Length: "+ content.Length.ToString() + CRLF);
-            headerLines.Add("Date : "+ DateTime.Now.ToString()+ CRLF) ;
+            headerLines.Add("Date: "+ DateTime.Now.ToString()+ CRLF) ;
            
             
 
-            if(redirectoinPath!=null)
+            if(redirectoinPath != "")
             {
                 headerLines.Add ( "redirection: " + redirectoinPath + CRLF);
             }
@@ -65,7 +65,7 @@ namespace HTTPServer
         private string GetStatusLine(StatusCode code)
         {
             // TODO: Create the response status line and return it
-            string statusLine = string.Format("HTTP/1.1 {0}{1}\r\n", "", ((int)code).ToString(), code.ToString());
+            string statusLine = string.Format("HTTP/1.1 {0} {1}",((int)code).ToString(), "OK");
             
                         
          
