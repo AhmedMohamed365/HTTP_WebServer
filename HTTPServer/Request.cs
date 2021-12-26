@@ -123,24 +123,20 @@ namespace HTTPServer
         private bool LoadHeaderLines()
         {
             int i = 0;
+            headerLines = new Dictionary<string, string> ();
             foreach (string iterator in requestLines)
             {
-                string[] headerLine = iterator.Split(':',' ');
+                string[] sperators = { ": " };
+                string[] headerLine = iterator.Split(sperators,StringSplitOptions.RemoveEmptyEntries);
+                if (i == 0)
+                {
+                    i++;
+                    continue;
+                }
                 if (headerLine.Length == 2) 
                 {
-                    // ignore 
-                    if (i == 0)
-                    {
-                        i++;
-                        continue;
-                    }
                     
-
-                    else
-                    {
                         headerLines.Add(headerLine[0], headerLine[1]);
-                    }
-
                 }
                 else
                 {
