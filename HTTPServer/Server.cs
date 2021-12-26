@@ -71,9 +71,10 @@ namespace HTTPServer
                     // TODO: Call HandleRequest Method that returns the response
                     Response response= HandleRequest(request);
                     // TODO: Send Response back to client
-                    Console.WriteLine(response.ResponseString);
+                   // Console.WriteLine(response.ResponseString);
                    
-                    serverSocket.Send(Encoding.ASCII.GetBytes(response.ResponseString) );
+                    
+                    clientSocket.Send(Encoding.ASCII.GetBytes(response.ResponseString) );
  
                 }
                 catch (Exception ex)
