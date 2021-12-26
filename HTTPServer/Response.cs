@@ -38,21 +38,27 @@ namespace HTTPServer
             // TODO: Add headlines (Content-Type, Content-Length,Date, [location if there is redirection])
             
             this.code = code;
-            GetStatusLine(code);
-            headerLines[0] = " Content-Type: \r\n" + contentType;
-            headerLines[1] = "Content-Length:\r\n  " + content.Length.ToString();
-            headerLines[2] = "Date : \r\n " + DateTime.Now.ToString();
+            headerLines.Add(GetStatusLine(code)+CRLF);
+            headerLines.Add("Content-Type: "+ contentType+ CRLF  );
+            headerLines.Add("Content-Length: "+ content.Length.ToString() + CRLF);
+            headerLines.Add("Date : "+ DateTime.Now.ToString()+ CRLF) ;
+           
+            
+
             if(redirectoinPath!=null)
             {
-                headerLines[3] = "redirection\r\n" + redirectoinPath;
+                headerLines.Add ( "redirection: " + redirectoinPath + CRLF);
             }
+
+            headerLines.Add(CRLF);
             // TODO: Create the request string
-            foreach(string header in headerLines)
+            foreach (string header in headerLines)
             {
                 responseString += header;
             }
 
 
+            responseString += content;
 
         }
 

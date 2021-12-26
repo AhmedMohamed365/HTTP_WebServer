@@ -33,7 +33,11 @@ namespace HTTPServer
             while (true)
             {
                 //TODO: accept connections and start thread for each accepted connection.
+
                 Socket clientSocket = this.serverSocket.Accept();
+
+                Console.WriteLine("New client accepted: {0}", clientSocket.RemoteEndPoint + "connected = " +clientSocket.Connected);
+
                 Thread thread = new Thread(new ParameterizedThreadStart(HandleConnection));
                 thread.Start(clientSocket);
  
@@ -45,7 +49,8 @@ namespace HTTPServer
             // TODO: Create client socket 
             Socket clientSocket = (Socket)obj;
             // set client socket ReceiveTimeout = 0 to indicate an infinite time-out period
- 
+
+            
             clientSocket.ReceiveTimeout = 0;
             // TODO: receive requests in while true until remote client closes the socket.
             while (true)
@@ -53,7 +58,7 @@ namespace HTTPServer
                 try
                 {
                     // TODO: Receive request
-                    byte[] dataReceived = new byte[1024];
+                    byte[] dataReceived =new byte[100000] ;
                     int len = clientSocket.Receive(dataReceived);
                     // TODO: break the while loop if receivedLen==0
                     if (len == 0)
@@ -65,7 +70,12 @@ namespace HTTPServer
                     // TODO: Call HandleRequest Method that returns the response
                     Response response= HandleRequest(request);
                     // TODO: Send Response back to client
-                    this.serverSocket.Send(Encoding.ASCII.GetBytes(response.ToString()));
+
+                    while(!clientSocket.Connected)
+                    {
+
+                    }
+                    this.serverSocket.Send(Encoding.ASCII.GetBytes(response.ResponseString) );
  
                 }
                 catch (Exception ex)
@@ -93,8 +103,18 @@ namespace HTTPServer
                 //TODO: check for bad request 
                 isGoodRequest = request.ParseRequest();
 
-                if( !isGoodRequest)
-                    statusCode = (int)StatusCode.BadRequest;
+                if (!isGoodRequest)
+                {
+
+
+                    return new Response(StatusCode.BadRequest, "text/html", "Bad request", redirectedUri);
+                }
+
+                if (request.relativeURI == "/")
+                
+                {
+                    return new Response(StatusCode.OK, "text/html", LoadDefaultPage("main.html"), redirectedUri); 
+                }
                 //TODO: map the relativeURI in request to get the physical path of the resource.
 
                 LoadRedirectionRules("redirectionRules.txt");
@@ -104,11 +124,11 @@ namespace HTTPServer
 
                 if(redirectedUri == "")
                 {
-                    physicalPath += request.relativeURI;
+                    physicalPath += Configuration.RootPath+"\\"+request.relativeURI;
                 }
                 else
                 {
-                    physicalPath += Configuration.RootPath + request.relativeURI;
+                    physicalPath = redirectedUri;
                 }
                 //
 
@@ -150,18 +170,21 @@ namespace HTTPServer
             // using Configuration.RedirectionRules return the redirected page path if exists else returns empty
             string redirectedPage;
 
-            bool founded = false;
+           
                 if (Configuration.RedirectionRules.ContainsKey(relativePath))
                 {
 
 
-                     founded = Configuration.RedirectionRules.TryGetValue(relativePath,out redirectedPage);
+                   Configuration.RedirectionRules.TryGetValue(relativePath,out redirectedPage);
 
-                    //Append the root path to the new path of the redirected page
+                //Append the root path to the new path of the redirected page
 
-                     if (founded)
+                if (redirectedPage != null)
+                   return  Configuration.RootPath + "\\" + redirectedPage;
 
-                    return  redirectedPage;
+                
+
+                   
                 }
             
 
@@ -187,6 +210,7 @@ namespace HTTPServer
             // else read file and return its content
            fileContent =  reader.ReadToEnd();
             reader.Close();
+
             return fileContent;
         }
 

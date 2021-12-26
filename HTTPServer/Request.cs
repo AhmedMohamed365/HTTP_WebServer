@@ -79,8 +79,7 @@ namespace HTTPServer
         {
             string[] requestLine = requestLines[0].Split(' ');
 
-            foreach( string line in requestLine)
-            Console.WriteLine(line);
+           
             if (requestLine.Length >= 2 && requestLine.Length < 4)
             {
                 // first line contains 
