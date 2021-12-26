@@ -22,6 +22,7 @@ namespace HTTPServer
     class Request
     {
         string[] requestLines;
+        string content;
         RequestMethod method;
         public string relativeURI;
         Dictionary<string, string> headerLines;
@@ -52,34 +53,27 @@ namespace HTTPServer
             // Load header lines into HeaderLines dictionary
             // parse request line 
 
-            string[] blankLine = { "\r\n\r\n" };
 
-            requestLines = requestString.Split(blankLine, StringSplitOptions.RemoveEmptyEntries);
-            if (requestLines.Length == 0 )
+            if (ValidateBlankLine())
             {
+                string[] sperators = { "\r\n" };
+                requestLines = requestLines[0].Split(sperators, StringSplitOptions.RemoveEmptyEntries);
+                // bool 
+                if (requestLines.Length >= 3)
+                {
+                    // request line is more than 3 
+                    if (!ParseRequestLine())
+                        return false;
+                    if (!LoadHeaderLines())
+                        return false;
 
-                return false;
-
-            }
-
-            string  []sperators = { "\r\n" };
-
-            requestLines = requestLines[0].Split(sperators, StringSplitOptions.RemoveEmptyEntries ); 
-
-           // bool 
-            if (requestLines.Length >= 3 )
-            {
-                // request line is more than 3 
-                if (!ParseRequestLine())
+                    return true;
+                }
+                else
                     return false;
-                if (!LoadHeaderLines())
-                    return false;
-
-                return true;
             }
             else
                 return false;
-
         }
         private bool ParseRequestLine()
         {
@@ -158,16 +152,15 @@ namespace HTTPServer
 
         private bool ValidateBlankLine()
         {
-            bool blankLineExist = false;
-            foreach (string iterator in requestLines)
+            string[] blankLine = { "\r\n\r\n" };
+            requestLines = requestString.Split(blankLine, StringSplitOptions.RemoveEmptyEntries);
+            if (requestLines.Length == 0)
             {
-                if (iterator.Equals("\n"))
-                    blankLineExist = true;
-            }
-            if (blankLineExist)
-                return true;
-            else
                 return false;
+            }
+            if (requestLines.Length == 2 )
+                content = requestLines[1];
+            return true;
         }
 
     }
