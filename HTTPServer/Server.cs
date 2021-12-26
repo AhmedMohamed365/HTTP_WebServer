@@ -53,13 +53,15 @@ namespace HTTPServer
                 try
                 {
                     // TODO: Receive request
-                    byte[] dataReceived = new byte[1024 * 1024];
+                    byte[] dataReceived = new byte[1024];
                     int len = clientSocket.Receive(dataReceived);
                     // TODO: break the while loop if receivedLen==0
                     if (len == 0)
                         break;
                     // TODO: Create a Request object using received request string
-                    Request request = new Request(dataReceived.ToString());
+
+                 //   Console.WriteLine(Encoding.ASCII.GetString(dataReceived));
+                    Request request = new Request(Encoding.ASCII.GetString( dataReceived ) );
                     // TODO: Call HandleRequest Method that returns the response
                     Response response= HandleRequest(request);
                     // TODO: Send Response back to client
@@ -79,18 +81,19 @@ namespace HTTPServer
 
         Response HandleRequest(Request request)
         {
-            throw new NotImplementedException();
+           // throw new NotImplementedException();
             string content ="";
-            bool isBadRequest = false;
-            string physicalPath = Configuration.RootPath;
+            bool isGoodRequest = false;
+            string physicalPath = "";
             string redirectedUri = "";
             int statusCode = (int)StatusCode.OK;
             StreamReader reader;
             try
             {
                 //TODO: check for bad request 
-                isBadRequest= request.ParseRequest();
-                if(isBadRequest)
+                isGoodRequest = request.ParseRequest();
+
+                if( !isGoodRequest)
                     statusCode = (int)StatusCode.BadRequest;
                 //TODO: map the relativeURI in request to get the physical path of the resource.
 
@@ -105,7 +108,7 @@ namespace HTTPServer
                 }
                 else
                 {
-                    physicalPath += redirectedUri;
+                    physicalPath += Configuration.RootPath + request.relativeURI;
                 }
                 //
 
@@ -116,6 +119,8 @@ namespace HTTPServer
                 content = reader.ReadToEnd();
                 // Create OK response
                 Response response = new Response(StatusCode.OK, "text/html", content, redirectedUri);
+
+                return response;
             }
 
             catch(FileNotFoundException ex)
@@ -123,6 +128,8 @@ namespace HTTPServer
                 //statusCode = (int)
 
                 Response response = new Response(StatusCode.NotFound, "text/html", "NotFound", redirectedUri);
+
+                return response;
             }
             catch (Exception ex)
             {
@@ -141,14 +148,22 @@ namespace HTTPServer
         private string GetRedirectionPagePathIFExist(string relativePath)
         {
             // using Configuration.RedirectionRules return the redirected page path if exists else returns empty
+            string redirectedPage;
 
-           string redirectedPage =  Configuration.RedirectionRules[relativePath];
+            bool founded = false;
+                if (Configuration.RedirectionRules.ContainsKey(relativePath))
+                {
 
-            //Append the root path to the new path of the redirected page
 
-            if (redirectedPage != null)
+                     founded = Configuration.RedirectionRules.TryGetValue(relativePath,out redirectedPage);
 
-                return Configuration.RootPath + redirectedPage;
+                    //Append the root path to the new path of the redirected page
+
+                     if (founded)
+
+                    return  redirectedPage;
+                }
+            
 
             return string.Empty;
         }
@@ -188,15 +203,21 @@ namespace HTTPServer
                 string oldAddress, newAddress;
 
                 char[] seprators = { ',' };
-                while (reader.EndOfStream)
+
+                int r = 0;
+                   
+                while (!reader.EndOfStream)
                 {
+                    
+
                     line =   reader.ReadLine().Trim().Split(seprators);
 
                     oldAddress = line[0];
-                    newAddress = line[2];
+                    newAddress = line[1];
 
                     // then fill Configuration.RedirectionRules dictionary 
 
+                    if(oldAddress != null && newAddress !=null)
                     Configuration.RedirectionRules.Add(oldAddress, newAddress);
 
                 }

@@ -51,14 +51,30 @@ namespace HTTPServer
             // Validate blank line exist
             // Load header lines into HeaderLines dictionary
             // parse request line 
-            requestLines = requestString.Split('\n', '\r');
-            if (requestLines.Length >= 3 && ValidateBlankLine())
+
+            string[] blankLine = { "\r\n\r\n" };
+
+            requestLines = requestString.Split(blankLine, StringSplitOptions.RemoveEmptyEntries);
+            if (requestLines.Length == 0 )
+            {
+
+                return false;
+
+            }
+
+            string  []sperators = { "\r\n" };
+
+            requestLines = requestLines[0].Split(sperators, StringSplitOptions.RemoveEmptyEntries ); 
+
+           // bool 
+            if (requestLines.Length >= 3 )
             {
                 // request line is more than 3 
                 if (!ParseRequestLine())
                     return false;
                 if (!LoadHeaderLines())
                     return false;
+
                 return true;
             }
             else
@@ -67,8 +83,10 @@ namespace HTTPServer
         }
         private bool ParseRequestLine()
         {
-            string[] requestLine = requestLines[0].Split();
+            string[] requestLine = requestLines[0].Split(' ');
 
+            foreach( string line in requestLine)
+            Console.WriteLine(line);
             if (requestLine.Length >= 2 && requestLine.Length < 4)
             {
                 // first line contains 
@@ -87,6 +105,7 @@ namespace HTTPServer
                 }
                 // URI
                 relativeURI = requestLine[1];
+                Console.WriteLine(relativeURI);
                 // http virsion
                 if (requestLine.Length < 3)
                     httpVersion = HTTPVersion.HTTP09;
@@ -96,6 +115,7 @@ namespace HTTPServer
                     httpVersion = HTTPVersion.HTTP10;
                 else if (requestLine[2].Equals("HTTP/1.1"))
                     httpVersion = HTTPVersion.HTTP11;
+
                 return true;
             }
             else
@@ -120,8 +140,8 @@ namespace HTTPServer
                         i++;
                         continue;
                     }
-                    if (iterator.Equals("\n"))
-                        break;
+                    
+
                     else
                     {
                         headerLines.Add(headerLine[0], headerLine[1]);
@@ -141,7 +161,7 @@ namespace HTTPServer
             bool blankLineExist = false;
             foreach (string iterator in requestLines)
             {
-                if (iterator.Equals('\n'))
+                if (iterator.Equals("\n"))
                     blankLineExist = true;
             }
             if (blankLineExist)
