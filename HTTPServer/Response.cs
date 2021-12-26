@@ -62,10 +62,46 @@ namespace HTTPServer
 
         }
 
+
+        private string getMessage(StatusCode code)
+        {
+
+            int status = (int)code;
+            if(status == 100 )
+            {
+                return "Informationl";
+            }
+            else if( status == 200)
+            {
+                return "OK";
+            }
+            else if(status == 300)
+            {
+                return "Redirection";
+
+            }
+
+            else if(status == 400)
+            {
+                return "BadRequest";
+            }
+            else if(status == 404)
+            {
+                return "Not Founud";
+            }
+            else
+            {
+                return "Internal Server Error";
+            }
+
+
+        }
         private string GetStatusLine(StatusCode code)
         {
             // TODO: Create the response status line and return it
-            string statusLine = string.Format("HTTP/1.1 {0} {1}",((int)code).ToString(), "OK");
+
+
+            string statusLine = string.Format("HTTP/1.1 {0} {1}",((int)code).ToString(), getMessage(code));
             
                         
          
