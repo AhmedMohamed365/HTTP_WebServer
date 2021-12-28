@@ -106,7 +106,11 @@ namespace HTTPServer
 
                 if (!isGoodRequest)
                 {
-
+                    physicalPath = Configuration.RootPath + "\\" + Configuration.BadRequestDefaultPageName;
+                    //TODO: check file exists
+                    reader = new StreamReader(physicalPath);
+                    //TODO: read the physical file
+                    content = reader.ReadToEnd();
 
                     return new Response(StatusCode.BadRequest, "text/html", "Bad request", redirectedUri);
                 }
@@ -129,7 +133,15 @@ namespace HTTPServer
                 }
                 else
                 {
-                    physicalPath = redirectedUri;
+                    physicalPath = Configuration.RootPath + "\\" +Configuration.RedirectionDefaultPageName;
+
+                    //Load Redirect Page To make him request again
+                    reader = new StreamReader(physicalPath);
+                    //TODO: read the physical file
+                    content = reader.ReadToEnd();
+
+                    return  new Response(StatusCode.Redirect, "text/html", content, redirectedUri);
+                     
                 }
                 //
 
@@ -148,7 +160,13 @@ namespace HTTPServer
             {
                 //statusCode = (int)
 
-                Response response = new Response(StatusCode.NotFound, "text/html", "NotFound", redirectedUri);
+                physicalPath = Configuration.RootPath + "\\" + Configuration.NotFoundDefaultPageName;
+                //TODO: check file exists
+                reader = new StreamReader(physicalPath);
+                //TODO: read the physical file
+                content = reader.ReadToEnd();
+
+                Response response = new Response(StatusCode.NotFound, "text/html", content, redirectedUri);
 
                 return response;
             }
@@ -161,8 +179,14 @@ namespace HTTPServer
                 // TODO: in case of exception, return Internal Server Error. 
                 string redirectionPath = GetRedirectionPagePathIFExist(request.relativeURI);
 
-                //Third param need to be revised ??
-             return new Response(StatusCode.InternalServerError, "text/html", "Internal Server Error", redirectionPath);
+                physicalPath = Configuration.RootPath + "\\" + Configuration.InternalErrorDefaultPageName;
+                //TODO: check file exists
+                reader = new StreamReader(physicalPath);
+                //TODO: read the physical file
+                content = reader.ReadToEnd();
+
+                
+                return new Response(StatusCode.InternalServerError, "text/html", content, redirectionPath);
             }
         }
 
@@ -172,6 +196,7 @@ namespace HTTPServer
             string redirectedPage;
 
           relativePath =   relativePath.Replace("/","");
+
                 if (Configuration.RedirectionRules.ContainsKey(relativePath))
                 {
 

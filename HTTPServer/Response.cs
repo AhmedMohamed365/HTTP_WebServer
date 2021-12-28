@@ -44,10 +44,11 @@ namespace HTTPServer
             headerLines.Add("Date: "+ DateTime.Now.ToString()+ CRLF) ;
            
             
-
+            
             if(redirectoinPath != "")
             {
-                headerLines.Add ( "redirection: " + redirectoinPath + CRLF);
+                string[] redirectedName = redirectoinPath.Split('\\');
+                headerLines.Add ( "Location: " + string.Format("http://localhost:1000/{0}",redirectedName[redirectedName.Length-1] ) + CRLF);
             }
 
             headerLines.Add(CRLF);
