@@ -95,9 +95,8 @@ namespace HTTPServer
            // throw new NotImplementedException();
             string content ="";
             bool isGoodRequest = false;
-            string physicalPath = "";
             string redirectedUri = "";
-            int statusCode = (int)StatusCode.OK;
+           
            
             StreamReader reader;
             try
@@ -111,6 +110,24 @@ namespace HTTPServer
 
                     
                     return new Response(StatusCode.BadRequest, "text/html", content , redirectedUri);
+                }
+
+                //Check if it's Post Method
+                if(request._method == RequestMethod.POST)
+                {
+                    string[] infos;
+                    string[] message;
+                    infos = request._content.Split('&');
+
+                    content = "";
+                    foreach (var info in infos)
+                    {
+                        message = info.Split('=');
+
+                        content += string.Format("<p> {0} : {1}<p> <br>", message[0], message[1]);
+                    }
+
+                    return new Response(StatusCode.Informational, "text/html", content, redirectedUri);
                 }
 
                 if (request.relativeURI == "/")

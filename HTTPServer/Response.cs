@@ -12,6 +12,7 @@ namespace HTTPServer
 
     public enum StatusCode
     {
+        Informational = 100,
         OK = 200,
         InternalServerError = 500,
         NotFound = 404,
@@ -68,6 +69,7 @@ namespace HTTPServer
         {
 
             int status = (int)code;
+
             if(status == 100 )
             {
                 return "Informationl";

@@ -22,10 +22,19 @@ namespace HTTPServer
     class Request
     {
         string[] requestLines;
-        string content;
+        string content = "";
         RequestMethod method;
         public string relativeURI;
         Dictionary<string, string> headerLines;
+
+        public string _content
+        {
+            get { return content; }
+        }
+        public RequestMethod _method
+        {
+            get { return method; }
+        }
         public Dictionary<string, string> HeaderLines
         {
             get { return headerLines; }
@@ -92,13 +101,21 @@ namespace HTTPServer
                 {
                     method = RequestMethod.HEAD;
                 }
-                if (requestLine[0].Equals(RequestMethod.POST))
+                if (requestLine[0].Equals("POST"))
                 {
                     method = RequestMethod.POST;
                 }
                 if (requestLine[0].Equals(RequestMethod.GET))
                 {
                     method = RequestMethod.GET;
+                }
+
+                //check content Line exist
+                if ( method == RequestMethod.POST && content == "")
+                {
+                    //Then it's bad Request
+
+                    return false;
                 }
                 // URI
                 if (ValidateIsURI(requestLine[1]))
