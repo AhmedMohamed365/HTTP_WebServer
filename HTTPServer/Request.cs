@@ -38,6 +38,8 @@ namespace HTTPServer
         public Request(string requestString)
         {
             this.requestString = requestString;
+
+           // Console.WriteLine(requestString);
         }
         /// <summary>
         /// Parses the request string and loads the request line, header lines and content, returns false if there is a parsing error
@@ -52,11 +54,12 @@ namespace HTTPServer
             // Validate blank line exist
             // Load header lines into HeaderLines dictionary
             // parse request line 
+           
 
-
-            if (ValidateBlankLine())
+            if ( ValidateBlankLine() )
             {
                 string[] sperators = { "\r\n" };
+
                 requestLines = requestLines[0].Split(sperators, StringSplitOptions.RemoveEmptyEntries);
                 // bool 
                 if (requestLines.Length >= 3)
@@ -67,6 +70,7 @@ namespace HTTPServer
                     if (!LoadHeaderLines())
                         return false;
 
+                   // content = 
                     return true;
                 }
                 else
@@ -98,7 +102,7 @@ namespace HTTPServer
                 }
                 // URI
                 relativeURI = requestLine[1];
-                Console.WriteLine(relativeURI);
+               // Console.WriteLine(relativeURI);
                 // http virsion
                 if (requestLine.Length < 3)
                     httpVersion = HTTPVersion.HTTP09;
@@ -123,7 +127,7 @@ namespace HTTPServer
         {
             int i = 0;
             headerLines = new Dictionary<string, string> ();
-            foreach (string iterator in requestLines)
+            foreach (string iterator in requestLines) 
             {
                 string[] sperators = { ": " };
                 string[] headerLine = iterator.Split(sperators,StringSplitOptions.RemoveEmptyEntries);
@@ -142,19 +146,28 @@ namespace HTTPServer
                     return false;
                 }
             }
+
             return true;
         }
 
         private bool ValidateBlankLine()
         {
-            string[] blankLine = { "\r\n\r\n" };
+            string[] blankLine = { "\r\n\r\n" } ;
+
             requestLines = requestString.Split(blankLine, StringSplitOptions.RemoveEmptyEntries);
+
+           
             if (requestLines.Length == 0)
             {
                 return false;
             }
+
             if (requestLines.Length == 2 )
+
                 content = requestLines[1];
+
+           // Console.WriteLine(content);
+
             return true;
         }
 

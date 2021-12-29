@@ -36,8 +36,8 @@ namespace HTTPServer
                 //TODO: accept connections and start thread for each accepted connection.
 
                 Socket clientSocket = this.serverSocket.Accept();
-
-                Console.WriteLine("New client accepted: {0}", clientSocket.RemoteEndPoint + "connected = " +clientSocket.Connected);
+                
+              //  Console.WriteLine("New client accepted: {0}", clientSocket.RemoteEndPoint + "connected = " +clientSocket.Connected);
 
                 Thread thread = new Thread(new ParameterizedThreadStart(HandleConnection));
                 thread.Start(clientSocket);
@@ -69,7 +69,7 @@ namespace HTTPServer
                  //   Console.WriteLine(Encoding.ASCII.GetString(dataReceived));
                     Request request = new Request(Encoding.ASCII.GetString( dataReceived ) );
                     // TODO: Call HandleRequest Method that returns the response
-                    Response response= HandleRequest(request);
+                    Response response = HandleRequest(request);
                     // TODO: Send Response back to client
                    // Console.WriteLine(response.ResponseString);
                    
@@ -112,19 +112,35 @@ namespace HTTPServer
                     //TODO: read the physical file
                     content = reader.ReadToEnd();
 
-                    return new Response(StatusCode.BadRequest, "text/html", "Bad request", redirectedUri);
+                    return new Response(StatusCode.BadRequest, "text/html", content , redirectedUri);
                 }
 
                 if (request.relativeURI == "/")
-                
                 {
-                    return new Response(StatusCode.OK, "text/html", LoadDefaultPage("main.html"), redirectedUri); 
+
+                    content = LoadDefaultPage("main.html");
+
+                    if(content == "")
+                    {
+
+                        // response back with Not Found Page
+                        physicalPath = Configuration.RootPath + "\\" + Configuration.NotFoundDefaultPageName;
+                        //TODO: check file exists
+                        reader = new StreamReader(physicalPath);
+                        //TODO: read the physical file
+                        content = reader.ReadToEnd();
+
+                        return new Response(StatusCode.NotFound, "text/html", , redirectedUri);
+                    }
+
+                    //Succeed to find file content 
+                    return new Response(StatusCode.OK, "text/html", , redirectedUri); 
                 }
                 //TODO: map the relativeURI in request to get the physical path of the resource.
 
                 LoadRedirectionRules("redirectionRules.txt");
 
-                //TODO: check for redirect
+                //TODO: check for redirect 
                 redirectedUri = GetRedirectionPagePathIFExist(request.relativeURI);
 
                 if(redirectedUri == "")
@@ -159,6 +175,8 @@ namespace HTTPServer
             catch(FileNotFoundException ex)
             {
                 //statusCode = (int)
+
+                Logger.LogException(ex);
 
                 physicalPath = Configuration.RootPath + "\\" + Configuration.NotFoundDefaultPageName;
                 //TODO: check file exists
@@ -222,7 +240,7 @@ namespace HTTPServer
             string filePath = Path.Combine(Configuration.RootPath, defaultPageName);
             string fileContent = "";
             // TODO: check if filepath not exist log exception using Logger class and return empty string
-            StreamReader reader;
+            StreamReader reader = null;
             try
             {
                  reader = new StreamReader(filePath);
@@ -231,10 +249,13 @@ namespace HTTPServer
             {
                 Logger.LogException(ex);
 
+                reader.Close();
+
                 return string.Empty;
             }
             // else read file and return its content
            fileContent =  reader.ReadToEnd();
+
             reader.Close();
 
             return fileContent;
@@ -242,33 +263,40 @@ namespace HTTPServer
 
         private void LoadRedirectionRules(string filePath)
         {
-            StreamReader reader = new StreamReader(filePath);
+            StreamReader reader = null;
             try
             {
+                reader = new StreamReader(filePath);
+
                 Configuration.RedirectionRules = new Dictionary<string, string>();
                 // TODO: using the filepath paramter read the redirection rules from file 
 
                  
                 string [] line ;
+
                 string oldAddress, newAddress;
 
-                char[] seprators = { ',' };
+                char[] seprators = { ','  };
 
-                int r = 0;
                    
                 while (!reader.EndOfStream)
                 {
                     
-
+                    //about.html aboutus.html
                     line =   reader.ReadLine().Trim().Split(seprators);
 
-                    oldAddress = line[0];
-                    newAddress = line[1];
+                    if(line.Length == 2)
+                    {
 
-                    // then fill Configuration.RedirectionRules dictionary 
+                        oldAddress = line[0];
+                        newAddress = line[1];
 
-                    if(oldAddress != null && newAddress !=null)
-                    Configuration.RedirectionRules.Add(oldAddress, newAddress);
+                        // then fill Configuration.RedirectionRules dictionary 
+
+                        if (oldAddress != null && newAddress != null)
+                            Configuration.RedirectionRules.Add(oldAddress, newAddress);
+                    }
+                    
 
                 }
 
