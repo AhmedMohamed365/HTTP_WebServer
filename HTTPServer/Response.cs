@@ -76,7 +76,7 @@ namespace HTTPServer
             {
                 return "OK";
             }
-            else if(status == 300)
+            else if(status == 300 || status ==  301)
             {
                 return "Redirection";
 
@@ -92,6 +92,7 @@ namespace HTTPServer
             }
             else
             {
+                
                 return "Internal Server Error";
             }
 
@@ -103,9 +104,10 @@ namespace HTTPServer
 
 
             string statusLine = string.Format("HTTP/1.1 {0} {1}",((int)code).ToString(), getMessage(code));
+
             
-                        
-         
+
+
             return statusLine;
         }
     }

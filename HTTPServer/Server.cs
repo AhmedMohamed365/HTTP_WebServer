@@ -12,7 +12,7 @@ namespace HTTPServer
     class Server
     {
         Socket serverSocket;
-
+        bool isFileFounded = false;
 
         public Server(int portNumber, string redirectionMatrixPath)
         {
@@ -98,6 +98,7 @@ namespace HTTPServer
             string physicalPath = "";
             string redirectedUri = "";
             int statusCode = (int)StatusCode.OK;
+           
             StreamReader reader;
             try
             {
@@ -106,35 +107,26 @@ namespace HTTPServer
 
                 if (!isGoodRequest)
                 {
-                    physicalPath = Configuration.RootPath + "\\" + Configuration.BadRequestDefaultPageName;
-                    //TODO: check file exists
-                    reader = new StreamReader(physicalPath);
-                    //TODO: read the physical file
-                    content = reader.ReadToEnd();
+                    content = LoadDefaultPage(Configuration.BadRequestDefaultPageName);
 
+                    
                     return new Response(StatusCode.BadRequest, "text/html", content , redirectedUri);
                 }
 
                 if (request.relativeURI == "/")
                 {
 
+                    
                     content = LoadDefaultPage("main.html");
 
-                    if(content == "")
-                    {
+                    if (content == "")
+                        isFileFounded = true;
 
-                        // response back with Not Found Page
-                        physicalPath = Configuration.RootPath + "\\" + Configuration.NotFoundDefaultPageName;
-                        //TODO: check file exists
-                        reader = new StreamReader(physicalPath);
-                        //TODO: read the physical file
-                        content = reader.ReadToEnd();
-
-                        return new Response(StatusCode.NotFound, "text/html", , redirectedUri);
-                    }
-
-                    //Succeed to find file content 
-                    return new Response(StatusCode.OK, "text/html", content, redirectedUri); 
+                    else
+                        //Succeed to find file content 
+                        return new Response(StatusCode.OK, "text/html", content, redirectedUri);
+                   
+                   
                 }
                 //TODO: map the relativeURI in request to get the physical path of the resource.
 
@@ -145,63 +137,60 @@ namespace HTTPServer
 
                 if(redirectedUri == "")
                 {
-                    physicalPath += Configuration.RootPath+"\\"+request.relativeURI;
+                    request.relativeURI =  request.relativeURI.Replace("/", "");
+
+                    content = LoadDefaultPage(request.relativeURI);
+
+                    if (content == "")
+                        isFileFounded = true;
+
+                    else
+                    return new Response(StatusCode.OK, "text/html", content, redirectedUri);
                 }
                 else
                 {
-                    physicalPath = Configuration.RootPath + "\\" +Configuration.RedirectionDefaultPageName;
+                    content = LoadDefaultPage(Configuration.RedirectionDefaultPageName);
 
-                    //Load Redirect Page To make him request again
-                    reader = new StreamReader(physicalPath);
-                    //TODO: read the physical file
-                    content = reader.ReadToEnd();
+                    if (content == "")
+                        isFileFounded = true;
 
-                    return  new Response(StatusCode.Redirect, "text/html", content, redirectedUri);
+                    else
+
+                        return  new Response(StatusCode.Redirect, "text/html", content, redirectedUri);
                      
+
                 }
-                //
+
+                if (isFileFounded)
+                {
+                    content = LoadDefaultPage(Configuration.NotFoundDefaultPageName);
+
+                    Response response = new Response(StatusCode.NotFound, "text/html", content, redirectedUri);
+
+                    return response;
+                }
 
 
-                //TODO: check file exists
-               reader = new StreamReader(physicalPath);
-                //TODO: read the physical file
-                content = reader.ReadToEnd();
-                // Create OK response
-                Response response = new Response(StatusCode.OK, "text/html", content, redirectedUri);
-
-                return response;
+               // Console.WriteLine("Exception");
+                return null;
             }
 
-            catch(FileNotFoundException ex)
-            {
-                //statusCode = (int)
+         
+          
 
-                Logger.LogException(ex);
-
-                physicalPath = Configuration.RootPath + "\\" + Configuration.NotFoundDefaultPageName;
-                //TODO: check file exists
-                reader = new StreamReader(physicalPath);
-                //TODO: read the physical file
-                content = reader.ReadToEnd();
-
-                Response response = new Response(StatusCode.NotFound, "text/html", content, redirectedUri);
-
-                return response;
-            }
             catch (Exception ex)
             {
                 // TODO: log exception using Logger class
 
-               
+
+                Console.WriteLine("Exception");
                 Logger.LogException(ex);
                 // TODO: in case of exception, return Internal Server Error. 
-                string redirectionPath = GetRedirectionPagePathIFExist(request.relativeURI);
+                //GetRedirectionPagePathIFExist(request.relativeURI);
 
-                physicalPath = Configuration.RootPath + "\\" + Configuration.InternalErrorDefaultPageName;
-                //TODO: check file exists
-                reader = new StreamReader(physicalPath);
-                //TODO: read the physical file
-                content = reader.ReadToEnd();
+                string redirectionPath = "";
+
+                content = LoadDefaultPage(Configuration.InternalErrorDefaultPageName);
 
                 
                 return new Response(StatusCode.InternalServerError, "text/html", content, redirectionPath);
@@ -241,15 +230,18 @@ namespace HTTPServer
             string fileContent = "";
             // TODO: check if filepath not exist log exception using Logger class and return empty string
             StreamReader reader = null;
+
             try
             {
                  reader = new StreamReader(filePath);
             }
             catch(FileNotFoundException ex)
             {
+               // reader.Close();
+
                 Logger.LogException(ex);
 
-                reader.Close();
+               
 
                 return string.Empty;
             }
@@ -258,6 +250,7 @@ namespace HTTPServer
 
             reader.Close();
 
+           // isFileFounded = true;
             return fileContent;
         }
 

@@ -101,7 +101,12 @@ namespace HTTPServer
                     method = RequestMethod.GET;
                 }
                 // URI
-                relativeURI = requestLine[1];
+                if (ValidateIsURI(requestLine[1]))
+                    relativeURI = requestLine[1];
+
+                //Not Valid
+                else
+                    return false;
                // Console.WriteLine(relativeURI);
                 // http virsion
                 if (requestLine.Length < 3)
