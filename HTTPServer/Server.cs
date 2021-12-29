@@ -134,7 +134,7 @@ namespace HTTPServer
                     }
 
                     //Succeed to find file content 
-                    return new Response(StatusCode.OK, "text/html", , redirectedUri); 
+                    return new Response(StatusCode.OK, "text/html", content, redirectedUri); 
                 }
                 //TODO: map the relativeURI in request to get the physical path of the resource.
 
