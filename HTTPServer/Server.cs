@@ -19,7 +19,7 @@ namespace HTTPServer
             //TODO: call this.LoadRedirectionRules passing redirectionMatrixPath to it
             this.LoadRedirectionRules(redirectionMatrixPath);
             //TODO: initialize this.serverSocket
-            IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse("127.0.0.1"), portNumber);
+            IPEndPoint ipEnd = new IPEndPoint(IPAddress.Any, portNumber);
             this.serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             this.serverSocket.Bind(ipEnd);
             
@@ -117,13 +117,9 @@ namespace HTTPServer
                 {
                     
 
-                    if(LoadDefaultPage("infoConfirmed.html") == "")
-                    {
-                        dont = true;
-                    }
 
-                    if (dont)
-                    {
+                    
+                    
 
                         string[] infos;
                         string[] message;
@@ -135,25 +131,28 @@ namespace HTTPServer
                         {
                             message = info.Trim().Split('=');
 
-                            content += string.Format("<p>{0} {1}<p> <br> ", message[0], message[1]);
+                            content += string.Format("<p><h1> {0} </h1> {1}<p> <br> ", message[0], message[1]);
                         }
 
 
 
                         redirectedUri = Path.Combine(Configuration.RootPath, "infoConfirmed.html");
 
-                        StreamWriter writer = new StreamWriter(redirectedUri, true);
+                        StreamWriter writer = new StreamWriter(redirectedUri, false);
 
                         Console.WriteLine("Correct");
                         writer.Write(content);
                         writer.Close();
 
-                        content = LoadDefaultPage(Configuration.RedirectionDefaultPageName);
+                    redirectedUri = "";
 
-                        return new Response(StatusCode.Redirect, "text/html", content, redirectedUri);
+                    //Now we don't need to have redirtection response
+                        //content = LoadDefaultPage(Configuration.RedirectionDefaultPageName);
+
+                        return new Response(StatusCode.OK, "text/html", content, redirectedUri);
 
 
-                    }
+                    
                 }
 
                 if (request.relativeURI == "/")
