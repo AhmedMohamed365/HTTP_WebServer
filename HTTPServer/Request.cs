@@ -71,7 +71,7 @@ namespace HTTPServer
 
                 requestLines = requestLines[0].Split(sperators, StringSplitOptions.RemoveEmptyEntries);
                 // bool 
-                if (requestLines.Length >= 3)
+                if ((requestLines.Length >= 2))
                 {
                     // request line is more than 3 
                     if (!ParseRequestLine())

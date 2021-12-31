@@ -13,7 +13,7 @@ namespace HTTPServer
     {
         Socket serverSocket;
         bool isFileFounded = false;
-
+        bool dont = false;
         public Server(int portNumber, string redirectionMatrixPath)
         {
             //TODO: call this.LoadRedirectionRules passing redirectionMatrixPath to it
@@ -115,19 +115,45 @@ namespace HTTPServer
                 //Check if it's Post Method
                 if(request._method == RequestMethod.POST)
                 {
-                    string[] infos;
-                    string[] message;
-                    infos = request._content.Split('&');
+                    
 
-                    content = "";
-                    foreach (var info in infos)
+                    if(LoadDefaultPage("infoConfirmed.html") == "")
                     {
-                        message = info.Split('=');
-
-                        content += string.Format("<p> {0} : {1}<p> <br>", message[0], message[1]);
+                        dont = true;
                     }
 
-                    return new Response(StatusCode.Informational, "text/html", content, redirectedUri);
+                    if (dont)
+                    {
+
+                        string[] infos;
+                        string[] message;
+                        infos = request._content.Split('&');
+
+                        redirectedUri = "";
+                        content = "";
+                        foreach (var info in infos)
+                        {
+                            message = info.Trim().Split('=');
+
+                            content += string.Format("<p>{0} {1}<p> <br> ", message[0], message[1]);
+                        }
+
+
+
+                        redirectedUri = Path.Combine(Configuration.RootPath, "infoConfirmed.html");
+
+                        StreamWriter writer = new StreamWriter(redirectedUri, true);
+
+                        Console.WriteLine("Correct");
+                        writer.Write(content);
+                        writer.Close();
+
+                        content = LoadDefaultPage(Configuration.RedirectionDefaultPageName);
+
+                        return new Response(StatusCode.Redirect, "text/html", content, redirectedUri);
+
+
+                    }
                 }
 
                 if (request.relativeURI == "/")
@@ -154,9 +180,13 @@ namespace HTTPServer
 
                 if(redirectedUri == "")
                 {
-                    request.relativeURI =  request.relativeURI.Replace("/", "");
 
-                    content = LoadDefaultPage(request.relativeURI);
+                   
+                        request.relativeURI = request.relativeURI.Replace("/", "");
+
+                    
+
+                     content = LoadDefaultPage(request.relativeURI);
 
                     if (content == "")
                         isFileFounded = true;
